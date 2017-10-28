@@ -1,0 +1,8 @@
+Interact with the library through the console:
+	docker run --rm -it -v "$PWD/web":/usr/src/app -p 3000:3000 ubuntu-sqlite3-rails /bin/bash
+	irb -I ./lib/exchange_rate/lib -r exchange_rate
+	ExchangeRate.at(date: Date.parse('2017-10-27'), amount: 100, from: 'GBP', to: 'USD')
+
+		
+
+

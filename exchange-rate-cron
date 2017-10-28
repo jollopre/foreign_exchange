@@ -1,0 +1,2 @@
+* 16 * * * /bin/sh /root/exchange-rate-cron.sh
+#
