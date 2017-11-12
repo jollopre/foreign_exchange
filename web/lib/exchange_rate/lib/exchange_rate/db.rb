@@ -1,6 +1,5 @@
 require 'sqlite3'
 require 'singleton'
-require 'exchange_rate/constants'
 require 'exchange_rate/er_logger'
 
 module ExchangeRate
@@ -16,7 +15,7 @@ module ExchangeRate
 		# Attemps to connect to the database. If fails
 		# raises SQLite3::Exception
 		def connect
-			@connection = SQLite3::Database.new(Constants::DBNAME) if @connection.nil?
+			@connection = SQLite3::Database.new(ExchangeRate.configuration.dbname) if @connection.nil?
 		end
 		# Closes database connection if it was open
 		def disconnect
@@ -41,8 +40,8 @@ module ExchangeRate
 		def schema_destroy
 			begin
 				disconnect()
-				if File.exist?(Constants::DBNAME)
-					File.delete(Constants::DBNAME)
+				if File.exist?(ExchangeRate.configuration.dbname)
+					File.delete(ExchangeRate.configuration.dbname)
 					return true 
 				end
 				return false

@@ -8,12 +8,14 @@ Gem::Specification.new do |s|
   s.email       = 'jollopre@gmail.com'
   s.files       = [
     'lib/exchange_rate.rb',
-    'lib/exchange_rate/constants.rb',
+    'lib/exchange_rate/configuration.rb',
     'lib/exchange_rate/currency.rb',
+    'lib/exchange_rate/currency_selector.rb',
     'lib/exchange_rate/db.rb',
     'lib/exchange_rate/euroxref_listener.rb',
     'lib/exchange_rate/logger.rb',
-    'lib/exchange_rate/pre_fetcher.rb',
+    'lib/exchange_rate/fetch.rb',
+    'lib/exchange_rate/parser.rb',
     'lib/exchange_rate/rate.rb'
   ]
   s.homepage    =

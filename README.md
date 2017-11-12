@@ -14,19 +14,31 @@ The different end-points to interact with the library are:
 
 Method | Description
 ------------ | -------------
-ExchangeRate.init(url) | url data source specified, otherwise will default to ExchangeRate.Constants.URL_HISTORICAL. The steps carried out after invoking this method are: Fetching the XML file from the data source; Parsing it according to the Schema Definition from [http://www.ecb.int/vocabulary/2002-08-01/eurofxref](http://www.ecb.int/vocabulary/2002-08-01/eurofxref); Persisting locally on a sqlite database allocated at ExchangeRate.Constants.DBNAME. Note this method follows the steps mentioned before unless the sqlite database does not exist or it has no data persisted.
-ExchangeRate.update(url) | url data source specified, otherwise will default to ExchangeRate.Constants.URL_HISTORICAL. This method always perform the steps of fetching, parsing and an attempt to persist data locally and becomes useful for feeding the database with new data on a regular basis (e.g. using scheduler cron).
-ExchangeRate.reset | Destroys the database and permits methods like ExchangeRate.init to be fully executed again.
-ExchangeRate.at({date, amount, from, to}) | Performs an exchange from currency 'from' to currency 'to'. Four non-positional parameters can be passed: date (as Date, defaults to today), amount (as Integer or Float, defaults to 1), from (as String representing the currency name, defaults to empty string) and to (as String representing the currency name, defaults to empty string). Two exception can be raised: ArgumentError or RuntimeError.
+ExchangeRate.init | Fetches an XML file from a remote source specified at ExchangeRate.configuration.url_historical; parses it according to an XSD defined at [http://www.ecb.int/vocabulary/2002-08-01/eurofxref](http://www.ecb.int/vocabulary/2002-08-01/eurofxref); and persists the data pulled into a sqlite database allocated at ExchangeRate.configuration.dbname. Note, if the database is already populated, the above steps are ignored.
+ExchangeRate.update | Feeds the database with new data from a remote source specified at ExchangeRate.configuration.url_daily. This method unlike ExchangeRate.init populates the database with new rates unless data for a given data/currency already exist. It becomes useful to be called within a scheduler cron on a daily basis.
+ExchangeRate.reset | Destroys the database configured at ExchangeRate.configuration.dbname.
+ExchangeRate.at({date, amount, from, to}) | Returns an exchange rate from currency 'from' to currency 'to' for a given date. If keyword date is missing, it defaults to Date.today. Similarly, if amount keyword is not given, it defaults to 1. The keywords from and to are expected to be strings (e.g. USD, GBP, PLN, etc).
+### Configuration of the library
+
+Should you want to change the default configuration options, below are the available variables that may be modified:
+
+```
+ExchangeRate.configure do |c|
+  c.url_historical = 'foo'  # An URL to retrieve an historical (e.g. 90 days data) XML file for currencies/rates
+  c.url_daily = 'bar' # An URL to retrieve a daily XML file for currencies/rates
+  c.temp_file = '/tmp/foo.xml'  # A path for where the XML file will be cached for parsing/persisting
+  c.dbname = 'db/bar.sqlite3' # A relative path for where the database will be allocated
+end
+```
 
 ## Web application
 
-A RoR application has been chosen to interact with the ExchangeRate library. Currently, only one controller (e.g. exchange_rates_controller.rb) is provided with the following actions:
+A RoR application is used to interact with the ExchangeRate library. Currently, only one controller (e.g. exchange_rates_controller.rb) is provided with the following actions:
 
 Method | Description
 ------------ | -------------
-exchange_rates#index | Queries the ExchangeRate library to retrieve the available Currencies and renders a HTML form located at web/app/views/exchange_rates/index.html.erb) together with a JS file. The JS file is allocated at (app/assets/javascripts/exchangeRatesIndex.js) and performs client validations together with an adequate handling of network requests to exchange_rates#at.
-exchange_rates#at | Interacts with ExchangeRate.at by passing the parameters provided through the web client and returns a JSON output with result key for a valid conversion or detail message if any error is encountered (ArgumentError, RuntimeError).
+exchange_rates#index | Asks the ExchangeRate library for the available Currencies and renders an HTML form located at web/app/views/exchange_rates/index.html.erb) together with a JS file. The JS file (app/assets/javascripts/exchangeRatesIndex.js) performs client-side validations and handles network responses to exchange_rates#at.
+exchange_rates#at | Interacts with ExchangeRate.at through the parameters provided by the web client and returns a JSON string with a result key for a valid conversion or a detail message if any error is encountered (ArgumentError, RuntimeError, etc).
 
 ## Cron
 

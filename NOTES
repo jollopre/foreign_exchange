@@ -3,6 +3,7 @@ Interact with the library through the console:
 	irb -I ./lib/exchange_rate/lib -r exchange_rate
 	ExchangeRate.at(date: Date.parse('2017-10-27'), amount: 100, from: 'GBP', to: 'USD')
 
+
 		
 
 

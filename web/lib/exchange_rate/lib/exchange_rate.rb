@@ -1,10 +1,21 @@
 require 'date'
-require 'exchange_rate/constants'
-require 'exchange_rate/pre_fetcher'
+require 'exchange_rate/configuration'
 require 'exchange_rate/db'
+require 'exchange_rate/fetch'
+require 'exchange_rate/parser'
 require 'exchange_rate/rate'
 
 module ExchangeRate
+
+	def self.configuration
+		@conf_instance||= Configuration.new
+	end
+
+	def self.configure
+		yield configuration if block_given?
+		configuration
+	end
+
 	# Initialises the ExchangeRate library by:
 	# 1. Fetching the 90 days XML file from ECB
 	# 2. Parsing the XML file on a event approach manner
@@ -14,9 +25,8 @@ module ExchangeRate
 	def self.init
 		DB.instance.schema_load
 		if !DB.instance.any_data?
-			p = PreFetcher.new(url: Constants::URL_HISTORICAL)
-			p.fetch
-			p.parse
+			Fetch.get_to_file(url: configuration.url_historical)
+			Parser.parse
 		end
 	end
 	# Updates the ExchangeRate data by:
@@ -24,14 +34,13 @@ module ExchangeRate
 	# 2. Parsing the XML file on a event approach manner
 	# 3. Persisting Rates in Rates table (if not exist already)
 	def self.update
-		DB.instance.schema_load()
-		p = PreFetcher.new(url: Constants::URL_DAILY)
-		p.fetch
-		p.parse
+		DB.instance.schema_load
+		Fetch.get_to_file
+		Parser.parse
 	end
 	# Destroys the ExchangeRate database
 	def self.reset
-		DB.instance.schema_destroy()
+		DB.instance.schema_destroy
 	end
 	# Converts from one currency to another the amount passed for the date specified
 	# Raises ArgumentError for any non-valid argument
