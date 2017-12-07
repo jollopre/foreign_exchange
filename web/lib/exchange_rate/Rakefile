@@ -1,8 +1,50 @@
 require 'rake/testtask'
+require 'active_record'
 
 Rake::TestTask.new do |t|
   t.libs << 'test'
 end
 
-desc "Run tests"
+desc 'Run tests'
 task :default => :test
+
+namespace :db do
+	desc 'Create database'
+	task :create do
+		ActiveRecord::Base.establish_connection(
+		  adapter:  'sqlite3',
+		  pool: 5,
+  		timeout: 5000,
+		  database: 'db/exchange_rate.sqlite3'
+		)
+	end
+
+	desc 'Migrate database'
+	task :migrate do
+		ActiveRecord::Base.establish_connection(
+		  adapter:  'sqlite3',
+		  pool: 5,
+  		timeout: 5000,
+		  database: 'db/exchange_rate.sqlite3'
+		)
+		ActiveRecord::Migration.verbose = true
+		ActiveRecord::Migrator.migrate('db/migrate')
+		Rake::Task['db:schema:dump'].invoke
+	end
+
+	namespace :schema do
+		desc 'Creates db/schema.rb'
+		task :dump do
+			ActiveRecord::Base.establish_connection(
+			  adapter:  'sqlite3',
+			  pool: 5,
+	  		timeout: 5000,
+			  database: 'db/exchange_rate.sqlite3'
+			)
+			require 'active_record/schema_dumper'
+			File.open('./db/schema.rb', "w:utf-8") do |f|
+				ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, f)
+			end
+		end
+	end
+end
