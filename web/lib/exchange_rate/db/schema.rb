@@ -10,6 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 0) do
+ActiveRecord::Schema.define(version: 20171207140700) do
+
+  create_table "currencies", force: :cascade do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_currencies_on_name"
+  end
+
+  create_table "rates", force: :cascade do |t|
+    t.string   "date"
+    t.float    "value"
+    t.integer  "currency_id"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.index ["currency_id"], name: "index_rates_on_currency_id"
+  end
 
 end

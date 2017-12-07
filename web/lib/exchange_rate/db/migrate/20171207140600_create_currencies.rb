@@ -1,6 +1,5 @@
-class CreateCurrencies < ActiveRecord::Migration
+class CreateCurrencies < ActiveRecord::Migration[5.0]
 	def change
-		say "Created a table"
 		create_table :currencies do |t|
 			t.string :name, :index => true
 			t.timestamps

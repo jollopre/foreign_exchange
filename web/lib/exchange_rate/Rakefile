@@ -27,9 +27,19 @@ namespace :db do
   		timeout: 5000,
 		  database: 'db/exchange_rate.sqlite3'
 		)
-		ActiveRecord::Migration.verbose = true
 		ActiveRecord::Migrator.migrate('db/migrate')
 		Rake::Task['db:schema:dump'].invoke
+	end
+
+	desc 'Drop database'
+	task :drop do
+		ActiveRecord::Base.establish_connection(
+		  adapter:  'sqlite3',
+		  pool: 5,
+  		timeout: 5000,
+		  database: 'db/exchange_rate.sqlite3'
+		)
+		#ActiveRecord::Base.connection.drop_database('db/exchange_rate.sqlite3')
 	end
 
 	namespace :schema do
